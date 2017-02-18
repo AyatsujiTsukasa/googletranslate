@@ -5,6 +5,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 
@@ -36,6 +37,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Println("ready to translate")
+
 	// loop until abort cmmand
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
@@ -43,6 +46,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Println(resp[0].Text)
+		fmt.Println(resp[0].Text)
 	}
 }
