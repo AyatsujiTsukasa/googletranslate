@@ -46,6 +46,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		//result := base64.StdEncoding.EncodeToString([]byte(resp[0].Text))
+		//fmt.Println(result)
 		fmt.Println(resp[0].Text)
 	}
 }
