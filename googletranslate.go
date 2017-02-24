@@ -4,6 +4,8 @@ package main
 
 import (
 	"bufio"
+	"encoding/base64"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -42,12 +44,46 @@ func main() {
 	// loop until abort cmmand
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		resp, err := client.Translate(ctx, []string{scanner.Text()}, lang, nil)
+		if scanner.Text() == "start" {
+			break
+		}
+	}
+
+	for scanner.Scan() {
+		vec, err := base64.StdEncoding.DecodeString(scanner.Text())
+		if err != nil {
+			log.Println("decoding" + err.Error())
+		}
+		//fmt.Println(vec)
+		var rqst requestFromUnity
+		err = json.Unmarshal(vec, &rqst)
+		if err != nil {
+			log.Fatal(err)
+		}
+		resp, err := client.Translate(ctx, []string{rqst.OrgText}, lang, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
 		//result := base64.StdEncoding.EncodeToString([]byte(resp[0].Text))
 		//fmt.Println(result)
 		fmt.Println(resp[0].Text)
+		rspnc := responceFromUnity{InstanceID: rqst.InstanceID, ResponceText: resp[0].Text}
+		outputByte, err := json.Marshal(rspnc)
+		if err != nil {
+			log.Fatal(err)
+		}
+		result := base64.StdEncoding.EncodeToString(outputByte)
+		//fmt.Println(string(outputByte))
+		fmt.Println(result)
 	}
+}
+
+type requestFromUnity struct {
+	InstanceID string
+	OrgText    string
+}
+
+type responceFromUnity struct {
+	InstanceID   string
+	ResponceText string
 }
