@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"cloud.google.com/go/translate"
 	"golang.org/x/net/context"
@@ -39,9 +40,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("ready to translate")
-
-	// loop until abort cmmand
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		if scanner.Text() == "start" {
@@ -49,12 +47,18 @@ func main() {
 		}
 	}
 
+	fmt.Println("ready to translate")
+
+	// loop until abort
 	for scanner.Scan() {
-		vec, err := base64.StdEncoding.DecodeString(scanner.Text())
+		unquoted, err := strconv.Unquote(scanner.Text())
 		if err != nil {
-			log.Println("decoding" + err.Error())
+			unquoted = scanner.Text()
 		}
-		//fmt.Println(vec)
+		vec, err := base64.StdEncoding.DecodeString(unquoted)
+		if err != nil {
+			log.Fatal(err)
+		}
 		var rqst requestFromUnity
 		err = json.Unmarshal(vec, &rqst)
 		if err != nil {
@@ -64,16 +68,14 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		//result := base64.StdEncoding.EncodeToString([]byte(resp[0].Text))
-		//fmt.Println(result)
-		fmt.Println(resp[0].Text)
-		rspnc := responceFromUnity{InstanceID: rqst.InstanceID, ResponceText: resp[0].Text}
+		var rspnc responceFromUnity
+		rspnc.InstanceID = rqst.InstanceID
+		rspnc.ResponceText = resp[0].Text
 		outputByte, err := json.Marshal(rspnc)
 		if err != nil {
 			log.Fatal(err)
 		}
 		result := base64.StdEncoding.EncodeToString(outputByte)
-		//fmt.Println(string(outputByte))
 		fmt.Println(result)
 	}
 }
