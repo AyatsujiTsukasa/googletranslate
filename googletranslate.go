@@ -64,7 +64,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		resp, err := client.Translate(ctx, []string{rqst.OrgText}, lang, nil)
+		resp, err := client.Translate(ctx, []string{rqst.OriginalText}, lang, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -81,8 +81,8 @@ func main() {
 }
 
 type requestFromUnity struct {
-	InstanceID string
-	OrgText    string
+	InstanceID   string
+	OriginalText string
 }
 
 type responceFromUnity struct {
